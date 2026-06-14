@@ -55,3 +55,18 @@ npm test
 ## Checkpoint
 
 Use the lightest process that preserves reviewability, safety, and enough durable context for future humans and agents.
+
+## Contributing
+
+Contributions are welcome. The best ways to contribute:
+
+- **New examples** — lightweight, standard, or heavy packets for different project types (see `examples/`).
+- **New schemas** — JSON Schema for artifacts not yet covered.
+- **Better recipes** — brownfield discovery, dependency mapping, or language-specific patterns (see `knowledge/`).
+- **Process improvements** — see `knowledge/self-dogfooding.md` for how to propose changes to the process itself.
+
+Open a PR with your change. For larger ideas, open an issue first to discuss fit.
+
+---
+
+If this methodology actually helps you ship without losing your mind (or your tokens), consider throwing a tip my way on [Ko-fi](https://ko-fi.com/parvezsyed). It helps fund more interesting (and probably over-engineered) experiments for everyone.
