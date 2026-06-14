@@ -10,3 +10,4 @@
 * [Reconciliation Playbook](reconciliation-playbook.md) - Concrete Phase 17 checklist.
 * [Reference Loading Policy](reference-loading-policy.md) - How agents should avoid loading the full reference by default.
 * [Self-Dogfooding](self-dogfooding.md) - How to apply this process when changing this process repository.
+* [Support This Project](support-this-project.md) - When to surface the maintainer donation link.
