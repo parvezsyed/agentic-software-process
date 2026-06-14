@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/agentic-software-delivery/task-graph.schema.json",
+  "title": "Task Graph",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["initiative", "source_artifacts", "tasks", "budget", "reconciliation"],
+  "properties": {
+    "initiative": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "mode"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "mode": { "type": "string", "minLength": 1 }
+      }
+    },
+    "source_artifacts": { "type": "array", "items": { "type": "string" } },
+    "tasks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "goal", "work_type", "dependencies", "scope", "non_scope", "affected_areas", "definition_of_done", "verification_commands", "stop_conditions", "reviewer_focus", "budget"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "title": { "type": "string", "minLength": 1 },
+          "goal": { "type": "string", "minLength": 1 },
+          "work_type": { "type": "string", "minLength": 1 },
+          "dependencies": { "type": "array", "items": { "type": "string" } },
+          "scope": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+          "non_scope": { "type": "array", "items": { "type": "string" } },
+          "affected_areas": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+          "definition_of_done": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+          "verification_commands": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+          "stop_conditions": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+          "reviewer_focus": { "type": "array", "items": { "type": "string" } },
+          "budget": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["time", "token_or_cost", "complexity"],
+            "properties": {
+              "time": { "type": "string" },
+              "token_or_cost": { "type": "string" },
+              "complexity": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["time", "token_or_cost", "review"],
+      "properties": {
+        "time": { "type": "string" },
+        "token_or_cost": { "type": "string" },
+        "review": { "type": "string" }
+      }
+    },
+    "reconciliation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["update_after", "records_to_touch"],
+      "properties": {
+        "update_after": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "records_to_touch": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "goal": "Fix the typo in the onboarding empty state copy.",
+  "scope": {
+    "in_scope": ["Update the incorrect copy string", "Run the relevant UI or unit check"],
+    "out_of_scope": ["Component refactors", "Design changes", "Analytics changes"]
+  },
+  "files_or_areas": {
+    "expected_write_areas": ["src/**/onboarding/**", "tests/**/onboarding/**"],
+    "sensitive_areas_to_avoid": ["package.json", "lockfiles", "migrations", "infra"]
+  },
+  "definition_of_done": [
+    "Copy is corrected",
+    "Relevant check passes",
+    "No unrelated files changed"
+  ],
+  "verification": {
+    "commands": ["npm test -- onboarding"],
+    "expected_results": ["Tests pass"]
+  },
+  "stop_conditions": [
+    "The copy is generated from a remote CMS or external source",
+    "The fix requires broader design or behavior changes"
+  ]
+}

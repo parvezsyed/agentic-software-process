@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/agentic-software-delivery/pr-task-packet.schema.json",
+  "title": "PR Task Packet",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "goal",
+    "context",
+    "release_scope",
+    "work_type",
+    "integration_strategy",
+    "technology_constraints",
+    "write_boundaries",
+    "access_and_security",
+    "scope",
+    "out_of_scope",
+    "definition_of_done",
+    "verification_plan",
+    "rollback_plan",
+    "git_hygiene",
+    "stop_conditions",
+    "agent_implementation_notes",
+    "reviewer_checklist"
+  ],
+  "properties": {
+    "goal": { "type": "string", "minLength": 1 },
+    "context": { "type": "object" },
+    "release_scope": { "type": "object" },
+    "work_type": { "type": "object" },
+    "integration_strategy": { "type": "object" },
+    "technology_constraints": { "type": "object" },
+    "write_boundaries": {
+      "type": "object",
+      "required": ["allowed", "read_only", "forbidden"],
+      "properties": {
+        "allowed": { "type": "array", "items": { "type": "string" } },
+        "read_only": { "type": "array", "items": { "type": "string" } },
+        "forbidden": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "access_and_security": { "type": "object" },
+    "scope": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+    "out_of_scope": { "type": "array", "items": { "type": "string" } },
+    "definition_of_done": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+    "verification_plan": {
+      "type": "object",
+      "required": ["commands", "expected_results"],
+      "properties": {
+        "commands": { "type": "array", "items": { "type": "string" } },
+        "expected_results": { "type": "array", "items": { "type": "string" } },
+        "artifacts": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "rollback_plan": { "type": "object" },
+    "git_hygiene": { "type": "object" },
+    "stop_conditions": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+    "agent_implementation_notes": { "type": "object" },
+    "reviewer_checklist": { "type": "array", "items": { "type": "string" } }
+  }
+}

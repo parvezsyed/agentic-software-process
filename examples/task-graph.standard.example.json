@@ -1,0 +1,41 @@
+{
+  "initiative": {
+    "id": "agentic-process-runnable-artifact",
+    "title": "Make the process repository runnable",
+    "mode": "standard"
+  },
+  "source_artifacts": [
+    "AGENT-ENTRYPOINT.md",
+    "docs/execution/execution-brief-agentic-process-runnable-artifact.md"
+  ],
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "Add schema validation tooling",
+      "goal": "Validate packet examples before handoff.",
+      "work_type": "tooling",
+      "dependencies": [],
+      "scope": ["Add package scripts", "Add validator", "Validate examples"],
+      "non_scope": ["Publish package", "Add external services"],
+      "affected_areas": ["package.json", "scripts/validate.mjs", "schema/**", "examples/**"],
+      "definition_of_done": ["npm test passes", "All examples validate"],
+      "verification_commands": ["npm test"],
+      "stop_conditions": ["Validation requires a network-only dependency"],
+      "reviewer_focus": ["No heavyweight runtime", "Clear errors"],
+      "budget": {
+        "time": "1 hour",
+        "token_or_cost": "small",
+        "complexity": "low"
+      }
+    }
+  ],
+  "budget": {
+    "time": "half day",
+    "token_or_cost": "small",
+    "review": "one reviewer"
+  },
+  "reconciliation": {
+    "update_after": ["after the validation tooling PR merges", "after any schema change", "after adding a new artifact type"],
+    "records_to_touch": ["examples/log.md", "knowledge/log.md", "README.md"]
+  }
+}

@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/agentic-software-delivery/ready-to-proceed.schema.json",
+  "title": "Ready-To-Proceed Packet",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "human_interaction_level",
+    "objective",
+    "current_understanding",
+    "classification",
+    "recommended_artifact_set",
+    "definition_of_ready",
+    "key_assumptions",
+    "human_decisions_needed",
+    "risks",
+    "recommended_next_step"
+  ],
+  "properties": {
+    "human_interaction_level": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["level", "collaboration_preference", "checkpoint_preference"],
+      "properties": {
+        "level": {
+          "type": "string",
+          "enum": ["novice_or_pm_level", "technical_collaborator", "expert_driver", "defaulted_mixed"]
+        },
+        "collaboration_preference": { "type": "string", "minLength": 1 },
+        "checkpoint_preference": { "type": "string", "minLength": 1 }
+      }
+    },
+    "objective": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["change", "outcome", "success_signal"],
+      "properties": {
+        "change": { "type": "string", "minLength": 1 },
+        "outcome": { "type": "string", "minLength": 1 },
+        "success_signal": { "type": "string", "minLength": 1 }
+      }
+    },
+    "current_understanding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["current_state", "relevant_sources", "constraints", "non_goals"],
+      "properties": {
+        "current_state": { "type": "string" },
+        "relevant_sources": { "type": "array", "items": { "type": "string" } },
+        "constraints": { "type": "array", "items": { "type": "string" } },
+        "non_goals": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "classification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scale_mode", "work_types", "reason"],
+      "properties": {
+        "scale_mode": {
+          "type": "string",
+          "enum": ["lightweight", "standard", "deep", "enterprise"]
+        },
+        "work_types": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "reason": { "type": "string", "minLength": 1 }
+      }
+    },
+    "recommended_artifact_set": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["create", "skip", "conditional"],
+      "properties": {
+        "create": { "type": "array", "items": { "type": "string" } },
+        "skip": { "type": "array", "items": { "type": "string" } },
+        "conditional": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "definition_of_ready": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+    "key_assumptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["assumption", "confidence", "validation"],
+        "properties": {
+          "assumption": { "type": "string", "minLength": 1 },
+          "confidence": { "type": "string" },
+          "validation": { "type": "string" }
+        }
+      }
+    },
+    "human_decisions_needed": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["decision", "why_it_matters", "recommended_default"],
+        "properties": {
+          "decision": { "type": "string", "minLength": 1 },
+          "why_it_matters": { "type": "string" },
+          "recommended_default": { "type": "string" }
+        }
+      }
+    },
+    "risks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["risk", "mitigation", "owner"],
+        "properties": {
+          "risk": { "type": "string", "minLength": 1 },
+          "mitigation": { "type": "string" },
+          "owner": { "type": "string" }
+        }
+      }
+    },
+    "recommended_next_step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["agent_recommendation", "human_approval_needed"],
+      "properties": {
+        "agent_recommendation": { "type": "string", "minLength": 1 },
+        "human_approval_needed": { "type": "boolean" }
+      }
+    }
+  }
+}

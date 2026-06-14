@@ -1,0 +1,63 @@
+{
+  "goal": "Add validation tooling for process packet examples.",
+  "context": {
+    "why": "Agents need a cheap way to prove packet examples are structurally valid before handoff.",
+    "source_artifacts": ["AGENT-ENTRYPOINT.md", "schema/task-graph.schema.json"]
+  },
+  "release_scope": {
+    "in_scope": ["Local validation script", "npm scripts", "schema-backed examples"],
+    "deferred": ["Hosted docs", "Graph visualizer"]
+  },
+  "work_type": {
+    "mode": "standard",
+    "risk": "low",
+    "classification": "tooling"
+  },
+  "integration_strategy": {
+    "approach": "Use Node built-ins so validation runs without dependency installation.",
+    "consumers": ["agents", "human reviewers", "CI"]
+  },
+  "technology_constraints": {
+    "allowed": ["Node.js built-ins", "JSON Schema-compatible field names"],
+    "forbidden": ["network-only validators", "proprietary services"]
+  },
+  "write_boundaries": {
+    "allowed": ["package.json", "scripts/**", "schema/**", "examples/**", "README.md"],
+    "read_only": ["agentic-software-delivery-process.md", "agentic-software-delivery-process.json"],
+    "forbidden": [".git/**"]
+  },
+  "access_and_security": {
+    "secrets_touched": false,
+    "external_network": false,
+    "sensitive_paths": []
+  },
+  "scope": ["Create validation script", "Add npm test script", "Add full packet and task graph examples"],
+  "out_of_scope": ["Changing the process philosophy", "Adding external dependencies"],
+  "definition_of_done": ["npm test passes", "Examples validate", "README names the validation path"],
+  "verification_plan": {
+    "commands": ["npm test"],
+    "expected_results": ["All schema examples validate"],
+    "artifacts": ["terminal output"]
+  },
+  "rollback_plan": {
+    "strategy": "Revert package, script, schema, and example additions.",
+    "risk": "Low; docs-only/tooling-only change."
+  },
+  "git_hygiene": {
+    "branch": "process-validation-tooling",
+    "commit_scope": "tooling and examples only"
+  },
+  "stop_conditions": [
+    "Validator needs dependencies that cannot be installed locally",
+    "Schema changes conflict with existing examples"
+  ],
+  "agent_implementation_notes": {
+    "prefer": "Small, readable validator with clear errors.",
+    "avoid": "A large framework or generated code."
+  },
+  "reviewer_checklist": [
+    "Validation is runnable from a fresh clone",
+    "No network is required",
+    "Examples are useful to agents"
+  ]
+}

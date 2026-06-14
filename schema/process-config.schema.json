@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/agentic-software-delivery/process-config.schema.json",
+  "title": "Agentic Process Config",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["process", "planning", "artifacts", "integrations"],
+  "properties": {
+    "process": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["default_scale_mode"],
+      "properties": {
+        "default_scale_mode": {
+          "type": "string",
+          "enum": ["lightweight", "standard", "deep", "enterprise"]
+        }
+      }
+    },
+    "planning": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["task_system", "canonical_source"],
+      "properties": {
+        "task_system": {
+          "type": "string",
+          "enum": ["linear", "github", "jira", "markdown", "none"]
+        },
+        "canonical_source": {
+          "type": "string",
+          "enum": ["task_graph", "external_tracker"]
+        },
+        "project": { "type": "string" },
+        "team": { "type": "string" },
+        "label": { "type": "string" }
+      }
+    },
+    "artifacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["task_graph", "packet_format"],
+      "properties": {
+        "task_graph": { "type": "string" },
+        "packet_format": {
+          "type": "string",
+          "enum": ["json", "markdown"]
+        }
+      }
+    },
+    "integrations": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "linear": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled"],
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "team": { "type": "string" },
+            "project": { "type": "string" },
+            "issue_label": { "type": "string" },
+            "issue_template": { "type": "string" }
+          }
+        },
+        "github": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled"],
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "repository": { "type": "string" },
+            "issue_label": { "type": "string" }
+          }
+        },
+        "jira": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled"],
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "project_key": { "type": "string" },
+            "issue_type": { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+}

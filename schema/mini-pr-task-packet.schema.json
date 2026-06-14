@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/agentic-software-delivery/mini-pr-task-packet.schema.json",
+  "title": "Mini PR Task Packet",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["goal", "scope", "files_or_areas", "definition_of_done", "verification", "stop_conditions"],
+  "properties": {
+    "goal": { "type": "string", "minLength": 1 },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["in_scope", "out_of_scope"],
+      "properties": {
+        "in_scope": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "out_of_scope": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "files_or_areas": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expected_write_areas", "sensitive_areas_to_avoid"],
+      "properties": {
+        "expected_write_areas": { "type": "array", "items": { "type": "string" } },
+        "sensitive_areas_to_avoid": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "definition_of_done": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["commands", "expected_results"],
+      "properties": {
+        "commands": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "expected_results": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+      }
+    },
+    "stop_conditions": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+  }
+}

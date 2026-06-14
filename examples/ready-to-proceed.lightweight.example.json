@@ -1,0 +1,52 @@
+{
+  "human_interaction_level": {
+    "level": "defaulted_mixed",
+    "collaboration_preference": "Agent makes routine technical decisions and asks before high-impact choices.",
+    "checkpoint_preference": "Checkpoint before coding and after verification."
+  },
+  "objective": {
+    "change": "Fix a typo in the onboarding empty state.",
+    "outcome": "Users see correct copy.",
+    "success_signal": "Copy displays correctly and existing UI checks still pass."
+  },
+  "current_understanding": {
+    "current_state": "Existing app and copy live in the onboarding UI.",
+    "relevant_sources": ["repo search for onboarding empty state"],
+    "constraints": ["No behavior change", "No design change"],
+    "non_goals": ["Do not refactor onboarding components", "Do not alter analytics"]
+  },
+  "classification": {
+    "scale_mode": "lightweight",
+    "work_types": ["brownfield_update"],
+    "reason": "Small isolated copy correction with simple verification."
+  },
+  "recommended_artifact_set": {
+    "create": ["mini_pr_task_packet"],
+    "skip": ["prd", "roadmap", "architecture_map", "adr"],
+    "conditional": []
+  },
+  "definition_of_ready": [
+    "Goal is clear",
+    "Expected write area is known",
+    "Verification command is identified"
+  ],
+  "key_assumptions": [
+    {
+      "assumption": "The typo is isolated to one UI string.",
+      "confidence": "medium",
+      "validation": "Search the repo before editing."
+    }
+  ],
+  "human_decisions_needed": [],
+  "risks": [
+    {
+      "risk": "Same copy may appear in multiple locations.",
+      "mitigation": "Search for the incorrect phrase.",
+      "owner": "agent"
+    }
+  ],
+  "recommended_next_step": {
+    "agent_recommendation": "Create a Mini PR Task Packet and implement the copy fix.",
+    "human_approval_needed": false
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "agentic-software-delivery-process",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Human- and agent-readable software delivery process with schema-validated execution packets.",
+  "scripts": {
+    "validate": "node scripts/validate.mjs",
+    "test": "npm run validate"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

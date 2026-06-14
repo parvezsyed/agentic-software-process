@@ -1,0 +1,35 @@
+{
+  "process": {
+    "default_scale_mode": "standard"
+  },
+  "planning": {
+    "task_system": "linear",
+    "canonical_source": "task_graph",
+    "project": "Agentic Process",
+    "team": "ENG",
+    "label": "agent-task"
+  },
+  "artifacts": {
+    "task_graph": "docs/execution/task-graph-<initiative>.json",
+    "packet_format": "json"
+  },
+  "integrations": {
+    "linear": {
+      "enabled": true,
+      "team": "ENG",
+      "project": "Agentic Process",
+      "issue_label": "agent-task",
+      "issue_template": "pr-task-packet"
+    },
+    "github": {
+      "enabled": false,
+      "repository": "org/repo",
+      "issue_label": "agent-task"
+    },
+    "jira": {
+      "enabled": false,
+      "project_key": "ENG",
+      "issue_type": "Task"
+    }
+  }
+}

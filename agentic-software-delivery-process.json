@@ -1,0 +1,1597 @@
+{
+  "name": "agentic_software_delivery_process",
+  "version": "1.0",
+  "date": "2026-06-13",
+  "objective": "Build and maintain software with human-readable intent, durable architecture decisions, scoped agent execution, machine-checkable verification, and easy debugging.",
+  "principles": [
+    {
+      "id": "adaptive_context_first",
+      "name": "Adaptive context comes first",
+      "rule": "Before planning or coding, the agent must assess the human's collaboration level, classify the work and risk, infer what it can from available sources, and produce a Ready-To-Proceed Packet."
+    },
+    {
+      "id": "intent_is_artifact",
+      "name": "Intent is a first-class artifact",
+      "rule": "Every initiative must have a durable PRD before planning implementation."
+    },
+    {
+      "id": "plans_are_products",
+      "name": "Plans are products",
+      "rule": "Plans must be reviewable, executable, versioned, and reconciled."
+    },
+    {
+      "id": "small_prs",
+      "name": "Small PRs are the unit of delivery",
+      "rule": "Each PR should represent one scoped task that can be reviewed comfortably."
+    },
+    {
+      "id": "machine_checkable_verification",
+      "name": "Verification must be machine-checkable",
+      "rule": "Each task must define commands, expected results, and required artifacts."
+    },
+    {
+      "id": "debuggability_by_design",
+      "name": "Debuggability is designed before implementation",
+      "rule": "Each feature must define logs, metrics, traces, errors, and runbooks when relevant."
+    },
+    {
+      "id": "bounded_agents",
+      "name": "Agents need boundaries",
+      "rule": "Each agent task must define scope, non-scope, stop conditions, and review criteria."
+    },
+    {
+      "id": "security_claims_require_evidence",
+      "name": "Security claims require evidence",
+      "rule": "Every security-sensitive claim must be backed by tests, threat model coverage, access review, scan output, configuration proof, or adversarial review notes."
+    },
+    {
+      "id": "technology_choices_are_governed",
+      "name": "Technology choices are governed",
+      "rule": "Agents may recommend technology choices, but humans approve languages, frameworks, cloud services, vendors, operational tools, observability, logging, and cost commitments."
+    },
+    {
+      "id": "strategy_precedes_large_prds",
+      "name": "Strategy precedes large PRDs",
+      "rule": "Large initiatives must link PRDs to vision, strategy, methods, measures, non-negotiables, anti-goals, and decision boundaries."
+    }
+  ],
+  "scale_modes": [
+    {
+      "id": "lightweight",
+      "use_when": ["typo", "copy_change", "isolated_bug", "obvious_one_file_fix"],
+      "required_artifacts": ["mini_pr_task_packet"],
+      "minimum_gate": "verification_defined_and_run"
+    },
+    {
+      "id": "standard",
+      "use_when": ["normal_feature", "normal_bug", "bounded_refactor", "few_modules"],
+      "required_artifacts": ["prd_or_brief", "task_graph", "pr_task_packet"],
+      "conditional_artifacts": ["architecture_map_update", "technology_strategy_if_new_tooling_or_vendor", "adr_if_consequential"]
+    },
+    {
+      "id": "deep",
+      "use_when": ["new_product_area", "cross_service_change", "data_migration", "security_sensitive", "unclear_architecture", "multi_pr_project"],
+      "required_artifacts": ["vision_strategy_methods_if_initiative_level", "prd", "release_target", "roadmap", "technology_strategy", "execution_brief", "architecture_map", "adr_review", "task_graph", "pr_task_packets", "runbook"],
+      "conditional_artifacts": ["adr_if_consequential"]
+    },
+    {
+      "id": "enterprise",
+      "use_when": ["customer_data", "regulated_data", "money_movement", "identity", "permissions", "multi_tenant_boundaries", "external_integrations", "material_business_risk"],
+      "required_artifacts": ["vision_strategy_methods_if_initiative_level", "prd", "release_target", "roadmap", "technology_strategy", "execution_brief", "architecture_map", "adr_review", "task_graph", "pr_task_packets", "runbook", "threat_model", "access_review", "security_test_plan", "adversarial_review", "incident_or_rollback_plan"],
+      "conditional_artifacts": ["adr_if_consequential"]
+    }
+  ],
+  "adr_policy": {
+    "required_when": [
+      "data_ownership_or_schema_changes",
+      "auth_permissions_privacy_billing_or_security_changes",
+      "new_vendor_framework_protocol_queue_database_or_service_boundary",
+      "new_language_cloud_service_deployment_platform_observability_logging_issue_tracker_or_paid_saas",
+      "conflict_with_approved_technology_strategy_or_existing_contract",
+      "rollback_requires_migration_customer_communication_or_coordinated_deploy",
+      "decision_is_likely_to_be_revisited"
+    ],
+    "usually_not_required_when": [
+      "local_code_organization_inside_one_module",
+      "decision_is_obvious_from_pr_diff_and_tests",
+      "implementation_detail_has_no_durable_tradeoff"
+    ],
+    "alternative_for_small_decisions": "Record in Execution Brief or PR Decision Notes."
+  },
+  "roles": [
+    {
+      "id": "product_lead",
+      "name": "Founder or Product Lead",
+      "owns": ["problem", "users", "success_metrics", "prd"]
+    },
+    {
+      "id": "engineering_lead",
+      "name": "Engineering Lead or Architect",
+      "owns": ["execution_brief", "architecture_map", "adrs", "technical_risk"]
+    },
+    {
+      "id": "planning_agent",
+      "name": "Planning Agent",
+      "owns": ["repo_recon", "implementation_plan", "risk_discovery"],
+      "model_guidance": "Use strongest reasoning model available."
+    },
+    {
+      "id": "execution_agent",
+      "name": "Execution Agent",
+      "owns": ["implementation", "test_execution", "pr_evidence"],
+      "model_guidance": "Use faster or cheaper model only when the PR task packet is precise."
+    },
+    {
+      "id": "review_agent",
+      "name": "Review Agent",
+      "owns": ["scope_review", "diff_review", "verification_review", "risk_review"],
+      "constraint": "Should be distinct from the execution agent for high-risk work."
+    },
+    {
+      "id": "human_reviewer",
+      "name": "Human Reviewer",
+      "owns": ["product_judgment", "architecture_judgment", "risk_acceptance", "merge_approval"]
+    }
+  ],
+  "artifact_paths": {
+    "agent_context_intake_playbook": "agent-context-intake.md",
+    "ready_to_proceed_packet": "docs/intake/ready-to-proceed-<initiative>.md",
+    "initial_intake_packet": "docs/intake/initial-intake-packet.md",
+    "ai_execution_strategy": "docs/intake/ai-execution-strategy.md",
+    "dependency_register": "docs/intake/dependency-register-<initiative>.md",
+    "phase_handoff": "docs/intake/handoff/phase-handoff-<checkpoint>.md",
+    "vision_strategy_methods": "docs/strategy/vision-strategy-methods-<area-or-initiative>.md",
+    "prd": "docs/product/prd-<initiative>.md",
+    "release_target": "docs/product/release-target-<initiative>-<milestone>.md",
+    "roadmap": "docs/product/roadmap-<initiative>.md",
+    "technology_strategy": "docs/platform/technology-strategy-<initiative>.md",
+    "approved_stack": "docs/platform/approved-stack.md",
+    "execution_brief": "docs/execution/execution-brief-<initiative>.md",
+    "architecture_map": "docs/architecture/architecture-map.md",
+    "adr": "docs/architecture/adr/000X-<decision>.md",
+    "task_graph": "docs/execution/task-graph-<initiative>.json",
+    "exploration_packet": "docs/execution/exploration/exploration-packet-<question>.md",
+    "exploration_decision": "docs/execution/exploration/exploration-decision-<question>.md",
+    "runbook": "docs/runbooks/<feature-or-service>.md",
+    "threat_model": "docs/security/threat-model-<initiative>.md",
+    "access_review": "docs/security/access-review-<initiative>.md",
+    "security_test_plan": "docs/security/security-test-plan-<initiative>.md",
+    "adversarial_review": "docs/security/adversarial-review-<initiative>.md",
+    "test_strategy": "docs/testing/test-strategy.md",
+    "process_exception": "docs/intake/process-exception-<initiative-or-pr>.md",
+    "evidence_index": "docs/evidence/<initiative-or-release>/README.md",
+    "agent_instructions": "AGENTS.md",
+    "decision_log": "docs/memory/decision-log.md",
+    "discarded_attempts": "docs/memory/discarded-attempts.md",
+    "agent_lessons": "docs/memory/agent-lessons.md",
+    "integration_lessons": "docs/memory/integration-lessons.md",
+    "testing_lessons": "docs/memory/testing-lessons.md",
+    "ready_to_proceed_schema": "schema/ready-to-proceed.schema.json",
+    "mini_pr_task_packet_schema": "schema/mini-pr-task-packet.schema.json",
+    "pr_task_packet_schema": "schema/pr-task-packet.schema.json",
+    "task_graph_schema": "schema/task-graph.schema.json",
+    "process_config_schema": "schema/process-config.schema.json",
+    "ready_to_proceed_lightweight_example": "examples/ready-to-proceed.lightweight.example.json",
+    "mini_pr_task_packet_example": "examples/mini-pr-task-packet.example.json",
+    "pr_task_packet_standard_example": "examples/pr-task-packet.standard.example.json",
+    "task_graph_standard_example": "examples/task-graph.standard.example.json",
+    "execution_brief_example": "examples/execution-brief.example.md",
+    "architecture_map_example": "examples/architecture-map.example.md",
+    "adr_example": "examples/adr.example.md",
+    "process_config_example": "process.config.example.json",
+    "agent_entrypoint": "AGENT-ENTRYPOINT.md",
+    "knowledge_index": "knowledge/index.md",
+    "artifact_format_policy": "knowledge/artifact-format-policy.md",
+    "target_repo_installation": "knowledge/target-repo-installation.md",
+    "brownfield_discovery_recipes": "knowledge/brownfield-discovery-recipes.md",
+    "human_response_defaults": "knowledge/human-response-defaults.md",
+    "task_system_adapters": "knowledge/task-system-adapters.md",
+    "orchestrator_executor": "knowledge/orchestrator-executor.md",
+    "checkpointing": "knowledge/checkpointing.md",
+    "reconciliation_playbook": "knowledge/reconciliation-playbook.md"
+  },
+  "intake_and_handoff_policy": {
+    "purpose": "Gather human, business, technical, budget, and operational context before Phase 1, adapting the interview to the human's technical comfort and the work's risk.",
+    "principles": [
+      "read_agent_context_intake_playbook_first",
+      "assess_human_interaction_level",
+      "ask_questions_in_focused_rounds",
+      "ask_for_decisions_only_humans_can_make",
+      "infer_routine_technical_details_from_repo_when_possible",
+      "recommend_defaults_for_nontechnical_humans_but_surface_tradeoffs",
+      "let_expert_humans_drive_preferences_while_challenging_risk_with_evidence",
+      "separate_facts_assumptions_preferences_and_open_questions",
+      "record_decision_owner_or_source",
+      "state_what_can_proceed_what_is_blocked_and_what_is_risky",
+      "do_not_start_coding_until_active_phase_has_complete_enough_ready_packet_handoff_or_pr_packet"
+    ],
+    "human_interaction_levels": [
+      {
+        "id": "novice_or_pm_level",
+        "agent_behavior": ["plain_language", "recommend_defaults", "infer_technical_details_from_repo", "ask_before_high_impact_choices"]
+      },
+      {
+        "id": "technical_collaborator",
+        "agent_behavior": ["ask_targeted_technical_questions", "present_options", "document_tradeoffs"]
+      },
+      {
+        "id": "expert_driver",
+        "agent_behavior": ["stay_concise", "verify_assumptions", "challenge_risky_choices_with_evidence"]
+      }
+    ],
+    "ready_to_proceed_required_sections": [
+      "human_interaction_level",
+      "objective",
+      "current_understanding",
+      "classification",
+      "recommended_artifact_set",
+      "key_assumptions",
+      "human_decisions_needed",
+      "risks",
+      "recommended_next_step"
+    ],
+    "human_roles": [
+      "founder_or_product",
+      "pm_or_operator",
+      "architect_or_engineer",
+      "security_or_compliance",
+      "reviewer",
+      "operator"
+    ],
+    "initial_intake_required_sections": [
+      "people_and_roles",
+      "vision_and_business_context",
+      "current_state",
+      "work_type",
+      "desired_outcome",
+      "constraints",
+      "execution_preferences",
+      "risk_tolerance",
+      "open_questions"
+    ],
+    "phase_handoff_required_sections": [
+      "completed",
+      "decisions_made",
+      "assumptions",
+      "open_questions",
+      "risks",
+      "budget_status",
+      "next_phase_readiness"
+    ],
+    "checkpoint_rule": [
+      "blocking_questions_prevent_next_phase",
+      "non_blocking_questions_may_proceed_with_explicit_assumptions_and_revisit_triggers",
+      "material_budget_timeline_or_risk_change_requires_human_approval"
+    ]
+  },
+  "work_type_classification_policy": {
+    "purpose": "Classify the work during intake so the process applies the right evidence and gates.",
+    "types": [
+      {
+        "id": "greenfield",
+        "use_when": "new_product_service_app_or_platform",
+        "extra_required_evidence": ["vision_strategy", "technology_strategy", "architecture_map", "release_target"]
+      },
+      {
+        "id": "brownfield_update",
+        "use_when": "existing_system_behavior_changes",
+        "extra_required_evidence": ["current_state_map", "regression_risks", "compatibility_plan", "rollback_plan"]
+      },
+      {
+        "id": "feature_addition",
+        "use_when": "new_user_or_system_capability",
+        "extra_required_evidence": ["prd", "acceptance_criteria", "integration_points", "release_scope"]
+      },
+      {
+        "id": "ux_heavy",
+        "use_when": "interaction_visual_design_workflow_accessibility_or_usability_drives_value",
+        "extra_required_evidence": ["user_journey", "design_source", "interaction_states", "accessibility", "visual_qa", "analytics"]
+      },
+      {
+        "id": "dependency_gated",
+        "use_when": "other_teams_vendors_or_systems_must_deliver_first",
+        "extra_required_evidence": ["dependency_register", "owners", "due_dates", "fallback_plan", "unblock_criteria"]
+      },
+      {
+        "id": "dependency_platform_maintenance",
+        "use_when": "library_framework_runtime_infra_package_or_tool_update",
+        "extra_required_evidence": ["changelog", "compatibility_matrix", "security_impact", "rollout_plan", "rollback_or_pin_strategy"]
+      },
+      {
+        "id": "migration_refactor",
+        "use_when": "internal_structure_changes_without_primary_user_visible_value",
+        "extra_required_evidence": ["invariants", "parity_tests", "staged_migration", "performance", "rollback"]
+      },
+      {
+        "id": "incident_bug_fix",
+        "use_when": "known_defect_or_production_issue",
+        "extra_required_evidence": ["repro", "root_cause", "blast_radius", "regression_test", "incident_notes"]
+      },
+      {
+        "id": "security_compliance",
+        "use_when": "controls_access_data_audit_privacy_or_policy_change",
+        "extra_required_evidence": ["threat_model", "access_review", "security_tests", "residual_risk_owner"]
+      }
+    ],
+    "brownfield_requirements": ["current_behavior", "desired_behavior", "known_consumers", "compatibility_requirements", "existing_tests_and_gaps", "data_shape_and_migrations", "operational_dependencies", "regression_risks", "rollback_path"],
+    "ux_heavy_requirements": ["target_user_and_use_case", "current_journey", "desired_journey", "design_source", "interaction_states", "accessibility_requirements", "responsive_breakpoints", "copy_content_requirements", "analytics_or_success_signals", "visual_regression_expectations"],
+    "dependency_register_required_fields": ["id", "description", "owner_team_or_vendor", "needed_by_phase", "needed_by_date", "contract_api_or_artifact_expected", "status", "risk_if_late", "fallback", "escalation_path", "verification_when_delivered"],
+    "dependency_platform_maintenance_requirements": ["reason_for_update", "changelog_reviewed", "breaking_changes_identified", "lockfile_changes_explained", "transitive_dependency_impact_reviewed", "test_matrix_selected", "rollback_or_pin_strategy", "security_scan_before_and_after_when_relevant"],
+    "rules": [
+      "a_project_may_have_multiple_work_types",
+      "task_graph_marks_blocked_tasks_explicitly",
+      "fallbacks_defined_before_dependency_is_late",
+      "agents_may_mock_or_stub_dependency_only_if_pr_packet_allows",
+      "integration_not_complete_until_real_dependency_verified",
+      "dependency_updates_not_combined_with_unrelated_feature_work_unless_explicitly_allowed"
+    ]
+  },
+  "ai_execution_strategy_policy": {
+    "purpose": "Budget reasoning, coding, testing, review, integration, and security separately.",
+    "required_sections": [
+      "objective",
+      "model_allocation",
+      "budget_controls",
+      "escalation_rules",
+      "reporting"
+    ],
+    "model_allocation_guidance": [
+      {
+        "work_type": "vision_strategy",
+        "recommended_model_class": "strongest_reasoning",
+        "human_gate": "human_approval"
+      },
+      {
+        "work_type": "prd_release_planning",
+        "recommended_model_class": "strongest_reasoning",
+        "human_gate": "human_approval"
+      },
+      {
+        "work_type": "architecture_options",
+        "recommended_model_class": "strongest_reasoning",
+        "human_gate": "adr_approval"
+      },
+      {
+        "work_type": "forked_exploration",
+        "recommended_model_class": "mixed_models",
+        "human_gate": "decision_record"
+      },
+      {
+        "work_type": "routine_coding",
+        "recommended_model_class": "coding_or_lower_cost_model",
+        "human_gate": "pr_review"
+      },
+      {
+        "work_type": "tests",
+        "recommended_model_class": "coding_or_test_model",
+        "human_gate": "ci_or_reviewer"
+      },
+      {
+        "work_type": "security_adversarial",
+        "recommended_model_class": "strongest_reasoning_or_security_specialized",
+        "human_gate": "security_signoff"
+      },
+      {
+        "work_type": "integration_release",
+        "recommended_model_class": "strong_reasoning",
+        "human_gate": "release_gate"
+      },
+      {
+        "work_type": "documentation_reconciliation",
+        "recommended_model_class": "lower_cost_model_with_review",
+        "human_gate": "reviewer_spot_check"
+      }
+    ],
+    "budget_controls": [
+      "maximum_total_spend",
+      "maximum_spend_per_phase",
+      "maximum_parallel_agents",
+      "maximum_retries_before_human_review",
+      "maximum_timebox_per_spike",
+      "escalation_threshold"
+    ],
+    "anti_patterns": [
+      "strongest_model_for_every_edit",
+      "cheapest_model_for_architecture_or_security",
+      "parallel_agents_without_rubric",
+      "unbounded_retries",
+      "optimizing_token_cost_while_ignoring_review_incident_or_rework_cost"
+    ]
+  },
+  "process_kernel": {
+    "stages": ["discover", "contract", "build", "prove", "ship_learn"],
+    "rules": [
+      "use_the_17_phase_lifecycle_as_expanded_reference_for_deep_and_enterprise_work",
+      "default_to_the_smallest_artifact_set_that_preserves_reviewability_and_safety",
+      "delete_merge_or_automate_process_steps_that_do_not_improve_decisions_safety_review_or_debugging"
+    ]
+  },
+  "definition_of_ready_done": {
+    "ready": {
+      "lightweight": ["goal_clear", "scope_and_non_scope_explicit", "expected_write_areas_known", "verification_defined", "stop_conditions_known"],
+      "standard": ["lightweight_ready", "product_intent_or_execution_brief_clear", "work_type_and_risk_mode_classified", "dependencies_and_affected_areas_known_or_assumed", "reviewable_pr_shape_defined"],
+      "deep_enterprise": ["standard_ready", "release_target_and_deferrals_explicit", "technology_constraints_approved", "architecture_boundaries_understandable", "required_adrs_accepted_or_owned", "security_privacy_data_migration_integration_rollback_and_operational_gates_identified", "blocking_human_decisions_resolved"]
+    },
+    "done": [
+      "agreed_behavior_implemented",
+      "scope_boundaries_respected_or_exceptions_approved",
+      "required_tests_and_checks_passed_or_failures_accepted",
+      "verification_evidence_attached",
+      "security_privacy_data_migration_and_rollback_evidence_exists_when_relevant",
+      "material_docs_updated",
+      "followups_deferred_work_and_residual_risks_have_owners"
+    ]
+  },
+  "exception_policy": {
+    "purpose": "Allow explicit, owned shortcuts without silent risk acceptance.",
+    "required_fields": ["artifact_gate_or_check_skipped", "reason", "risk_accepted", "owner_accepting_risk", "expiration_or_revisit_trigger", "minimum_evidence_still_required", "follow_up"],
+    "rules": [
+      "never_skip_security_privacy_permission_payment_migration_infrastructure_customer_data_or_rollback_gates_silently",
+      "do_not_use_exceptions_to_hide_unclear_product_intent",
+      "expired_exceptions_must_be_reconciled_before_release_or_reapproved",
+      "repeated_exceptions_indicate_process_or_architecture_needs_correction"
+    ]
+  },
+  "evidence_retention_policy": {
+    "durable_evidence_when": ["review", "release", "auditability", "security", "rollback", "future_debugging"],
+    "evidence_types": ["commands_and_results", "ci_links_or_report_paths", "screenshots", "videos", "traces", "logs", "benchmark_summaries", "migration_rehearsals", "security_scan_summaries", "manual_verification_notes", "accepted_residual_risks"],
+    "rules": [
+      "pr_local_evidence_can_live_in_pr_body",
+      "release_migration_security_incident_or_rollback_evidence_should_be_linked_from_durable_records",
+      "do_not_commit_bulky_generated_artifacts_unless_repo_norms_allow_it",
+      "do_not_store_secrets_credentials_customer_data_regulated_data_or_sensitive_logs_in_docs_pr_bodies_or_memory",
+      "evidence_states_what_was_proven_when_by_whom_or_what_agent_and_where_source_artifact_lives"
+    ]
+  },
+  "process_ownership": {
+    "owners": ["process_owner", "engineering_owner", "security_or_risk_owner", "operator_owner"],
+    "review_cadence": {
+      "lightweight_or_solo": "monthly_or_after_painful_process_friction",
+      "active_product_team": "every_2_to_4_weeks_during_major_development",
+      "enterprise_or_regulated": "at_release_milestones_and_after_incidents"
+    }
+  },
+  "process_health_metrics": [
+    "cycle_time_ready_to_merge",
+    "review_time_and_review_rounds",
+    "agent_rework_rate",
+    "escaped_defects_rollbacks_incidents_support_issues",
+    "stale_artifact_count",
+    "verification_reliability",
+    "human_interruption_rate_from_missing_context",
+    "exception_count_and_expired_exception_count"
+  ],
+  "lifecycle_handoff_rule": "Use Ready-To-Proceed Packets, PR Task Packets, and handoff packets to preserve context at the right weight. Create handoff packets at major phase boundaries, risk escalations, or material scope, budget, timeline, or safety changes. Do not proceed when blocking questions remain or when material budget, timeline, or risk changes lack human approval.",
+  "technology_strategy_policy": {
+    "purpose": "Prevent agents from making uncomfortable or costly technology decisions without human approval.",
+    "required_sections": [
+      "decision_owner",
+      "existing_constraints",
+      "preferred_stack",
+      "forbidden_or_approval_required_choices",
+      "options_considered",
+      "selected_baseline",
+      "observability_and_operations_baseline",
+      "agent_rules"
+    ],
+    "existing_constraints": [
+      "existing_contracts",
+      "committed_vendors",
+      "approved_clouds_or_accounts",
+      "required_enterprise_tools",
+      "compliance_or_data_residency_constraints",
+      "hiring_or_team_skill_constraints",
+      "budget_constraints"
+    ],
+    "preferred_stack_fields": [
+      "languages",
+      "frameworks",
+      "package_managers",
+      "databases",
+      "queues_or_streams",
+      "search_cache_storage",
+      "infrastructure_or_deployment",
+      "cicd",
+      "issue_or_project_tracking",
+      "documentation",
+      "feature_flags_or_config",
+      "secrets_management",
+      "monitoring",
+      "logging",
+      "tracing",
+      "error_tracking",
+      "incident_management"
+    ],
+    "option_comparison_fields": [
+      "summary",
+      "security",
+      "delivery_speed",
+      "token_or_agent_cost",
+      "cloud_or_vendor_cost",
+      "operational_burden",
+      "hiring_or_maintenance",
+      "contract_fit",
+      "recommendation"
+    ],
+    "approval_required_for": [
+      "new_language",
+      "new_framework",
+      "new_cloud_service",
+      "new_vendor",
+      "new_database",
+      "new_queue_or_stream",
+      "new_auth_provider",
+      "new_logging_platform",
+      "new_observability_tool",
+      "new_cicd_system",
+      "new_issue_tracker",
+      "new_paid_service"
+    ],
+    "agent_rules": [
+      "agents_may_research_compare_and_recommend",
+      "agents_must_not_introduce_approval_required_choices_without_approval",
+      "cost_saving_alternatives_must_include_migration_cost_operational_risk_support_burden_security_impact_and_contract_timing",
+      "approved_deviation_from_baseline_stack_requires_adr"
+    ]
+  },
+  "vision_strategy_methods_policy": {
+    "purpose": "Connect large initiatives to company, org, or product vision before PRD creation.",
+    "use_when": [
+      "multi_quarter_work",
+      "multi_team_or_multi_product_work",
+      "company_operating_model_change",
+      "new_platform_product_line_or_method",
+      "strategic_budget_brand_compliance_or_organizational_consequence"
+    ],
+    "do_not_use_for": ["ordinary_feature", "small_fix", "strategy_already_settled"],
+    "required_sections": [
+      "vision",
+      "strategic_context",
+      "strategies",
+      "methods",
+      "measures",
+      "obstacles_and_risks",
+      "non_negotiables",
+      "anti_goals",
+      "decision_boundaries",
+      "review_cadence"
+    ],
+    "prd_linkage_required_fields": [
+      "vision_strategy_methods_link",
+      "strategy_advanced",
+      "method_implemented_or_supported",
+      "measure_moved",
+      "non_negotiables",
+      "anti_goals",
+      "target_milestone"
+    ],
+    "adversarial_questions": [
+      "is_the_vision_specific_enough_to_guide_tradeoffs",
+      "are_strategies_real_strategies_or_slogans",
+      "are_methods_concrete_enough_to_execute",
+      "are_measures_leading_lagging_or_vanity_metrics",
+      "what_does_the_strategy_rule_out",
+      "what_would_make_this_strategy_wrong",
+      "are_timelines_realistic_for_team_budget_and_technical_estate",
+      "are_dependencies_on_sales_support_legal_security_operations_or_customers_hidden",
+      "does_the_strategy_assume_ai_agents_can_compress_work_that_requires_human_judgment",
+      "is_this_trying_to_solve_an_org_problem_with_software",
+      "can_the_first_release_prove_or_disprove_the_strategic_bet"
+    ],
+    "gate": ["specific_enough_to_guide_tradeoffs", "methods_executable", "measures_defined", "anti_goals_defined", "decision_boundaries_defined"]
+  },
+  "release_target_policy": {
+    "purpose": "Define the smallest coherent release and prevent overbuilding.",
+    "definitions": {
+      "release_target": "The smallest coherent version that produces useful value and can be reviewed, tested, released, and rolled back.",
+      "roadmap": "The ordered set of later increments, each tied to a reason, dependency, or learning milestone.",
+      "deferral_contract": "A written agreement that a capability is intentionally excluded from the current release, including the trigger for revisiting it."
+    },
+    "required_release_target_sections": [
+      "release_objective",
+      "in_scope",
+      "deferred",
+      "explicitly_out_of_scope",
+      "release_risks",
+      "assumptions",
+      "dependencies",
+      "kill_criteria",
+      "success_criteria",
+      "release_budget",
+      "negotiation_notes"
+    ],
+    "roadmap_buckets": ["now", "next", "later", "never_or_not_planned"],
+    "release_budget_fields": [
+      "time_budget",
+      "token_or_cost_budget",
+      "complexity_budget",
+      "performance_budget",
+      "security_or_privacy_threshold"
+    ],
+    "negotiation_rules": [
+      "agent_proposes_at_least_two_release_slices_when_prd_is_broad",
+      "each_slice_states_gain_deferral_and_remaining_risk",
+      "human_decision_maker_selects_or_edits_release_target",
+      "agent_may_challenge_overbroad_scope_with_evidence",
+      "deferred_work_must_not_be_implemented_opportunistically",
+      "deferred_item_requires_revisit_trigger_or_not_planned_status"
+    ],
+    "slice_options": [
+      {
+        "id": "learning_mvp",
+        "use_when": "user_value_unclear",
+        "includes": ["narrow_path", "instrumentation", "manual_fallback"],
+        "defers": ["scale", "automation", "polish"]
+      },
+      {
+        "id": "operational_mvp",
+        "use_when": "internal_workflow_or_platform_feature",
+        "includes": ["core_workflow", "logs", "runbook", "rollback"],
+        "defers": ["advanced_ux", "edge_case_automation"]
+      },
+      {
+        "id": "safe_foundation",
+        "use_when": "architecture_risk_high",
+        "includes": ["data_model", "interfaces", "compatibility_layer", "contract_tests"],
+        "defers": ["user_facing_breadth"]
+      },
+      {
+        "id": "user_visible_thin_slice",
+        "use_when": "product_feedback_urgent",
+        "includes": ["one_end_to_end_journey"],
+        "defers": ["broad_settings", "admin_tools", "optimization"]
+      },
+      {
+        "id": "migration_slice",
+        "use_when": "existing_system_must_be_replaced",
+        "includes": ["adapter", "shadow_mode", "parity_checks"],
+        "defers": ["full_cutover"]
+      }
+    ]
+  },
+  "subagent_write_control": {
+    "default_policy": [
+      "research_subagents_are_read_only",
+      "review_subagents_are_read_only",
+      "execution_subagents_write_only_to_pr_packet_allowed_paths",
+      "sensitive_paths_require_explicit_allowlist",
+      "new_dependencies_network_calls_secrets_env_vars_jobs_queues_or_datastores_require_approved_instruction_or_adr"
+    ],
+    "sensitive_paths": [
+      "migrations",
+      "generated_files",
+      "security_policy",
+      "dependency_manifests",
+      "lockfiles",
+      "infrastructure",
+      "billing",
+      "auth",
+      "production_configuration"
+    ],
+    "enforcement_layers": [
+      "prompt_contract",
+      "tool_permissions",
+      "filesystem_sandbox",
+      "codeowners",
+      "ci_boundary_check",
+      "diff_scope_review",
+      "stop_condition_on_boundary_mismatch"
+    ],
+    "boundary_fields": ["allowed_write", "read_only", "forbidden"]
+  },
+  "git_hygiene": {
+    "branch_rules": [
+      "one_branch_per_pr_task_packet",
+      "one_worktree_per_active_execution_agent",
+      "branch_name_includes_task_id_and_goal",
+      "parallel_agents_must_not_share_branch"
+    ],
+    "commit_rules": [
+      "commits_are_coherent_and_reviewable",
+      "do_not_commit_broken_intermediate_states_to_shared_remote_unless_exploratory",
+      "separate_generated_migrations_and_mechanical_formatting_when_unavoidable",
+      "do_not_mix_unrelated_cleanup_with_feature_work",
+      "use_repo_conventional_commit_style_when_present"
+    ],
+    "merge_rules": [
+      "rebase_or_merge_target_before_final_verification_when_drifted",
+      "rerun_checks_after_conflict_resolution",
+      "prefer_squash_merge_for_noisy_agent_commits",
+      "preserve_separate_commits_when_audit_or_rollback_benefits"
+    ],
+    "discard_rules": [
+      "restore_checkpoint_or_abandon_worktree_when_implementation_drifts",
+      "split_or_discard_when_more_than_30_percent_of_diff_is_unrelated",
+      "stop_and_replan_when_verification_cannot_be_made_reliable"
+    ]
+  },
+  "integration_strategy": {
+    "patterns": [
+      {
+        "id": "additive",
+        "use_when": "new_code_path_does_not_replace_old_behavior",
+        "review_focus": ["api_compatibility", "dead_code_plan"]
+      },
+      {
+        "id": "feature_flag",
+        "use_when": "behavior_should_roll_out_gradually",
+        "review_focus": ["flag_default", "kill_switch", "cleanup_date"]
+      },
+      {
+        "id": "adapter",
+        "use_when": "new_system_must_coexist_with_old_interface",
+        "review_focus": ["contract_tests", "translation_edge_cases"]
+      },
+      {
+        "id": "strangler",
+        "use_when": "legacy_path_replaced_over_time",
+        "review_focus": ["routing", "parity_checks", "rollback"]
+      },
+      {
+        "id": "shadow_mode",
+        "use_when": "new_logic_can_run_without_user_visible_effect",
+        "review_focus": ["comparison_metrics", "logging", "cost"]
+      },
+      {
+        "id": "dual_write",
+        "use_when": "data_transition_requires_old_and_new_stores",
+        "review_focus": ["consistency", "replay", "repair", "rollback"]
+      },
+      {
+        "id": "read_switch",
+        "use_when": "reads_move_after_writes_are_proven",
+        "review_focus": ["backfill", "correctness_checks"]
+      },
+      {
+        "id": "big_bang",
+        "use_when": "low_risk_or_unreleased_systems_only",
+        "review_focus": ["full_regression", "rollback_readiness"]
+      }
+    ],
+    "required_fields": [
+      "producers",
+      "consumers",
+      "contracts",
+      "compatibility",
+      "migration_sequence",
+      "flag_or_routing_strategy",
+      "observability",
+      "cutover_triggers",
+      "rollback_triggers"
+    ],
+    "gate": [
+      "existing_consumers_keep_working",
+      "new_behavior_has_contract_or_integration_tests",
+      "rollout_can_be_paused_or_reversed",
+      "monitoring_distinguishes_old_and_new_paths"
+    ]
+  },
+  "end_to_end_testing_options": [
+    {
+      "id": "browser_e2e",
+      "best_for": "user_facing_web_flows",
+      "artifacts": ["screenshots", "video", "console_logs", "network_logs"]
+    },
+    {
+      "id": "api_e2e",
+      "best_for": "service_to_service_or_public_api_behavior",
+      "artifacts": ["request_response_logs", "test_report"]
+    },
+    {
+      "id": "contract_tests",
+      "best_for": "producer_consumer_integrations",
+      "artifacts": ["contract_report"]
+    },
+    {
+      "id": "smoke_tests",
+      "best_for": "release_confidence",
+      "artifacts": ["smoke_report"]
+    },
+    {
+      "id": "synthetic_monitoring",
+      "best_for": "continuous_production_journey_checks",
+      "artifacts": ["monitor_url", "alert_policy"]
+    },
+    {
+      "id": "visual_regression",
+      "best_for": "layout_and_design_sensitive_flows",
+      "artifacts": ["baseline_screenshot", "diff_screenshot"]
+    },
+    {
+      "id": "migration_rehearsal",
+      "best_for": "data_changes",
+      "artifacts": ["forward_result", "rollback_result"]
+    },
+    {
+      "id": "shadow_comparison",
+      "best_for": "replacements_and_rewrites",
+      "artifacts": ["old_new_comparison_report"]
+    }
+  ],
+  "rollback_options": [
+    {
+      "id": "git_revert",
+      "use_when": "code_only_or_simple_behavior_change",
+      "requirements": ["safe_revert_pr", "checks_pass"]
+    },
+    {
+      "id": "feature_flag_off",
+      "use_when": "new_behavior_is_gated",
+      "requirements": ["tested_kill_switch", "known_flag_owner"]
+    },
+    {
+      "id": "config_rollback",
+      "use_when": "behavior_controlled_by_config",
+      "requirements": ["config_history", "safe_propagation", "audit"]
+    },
+    {
+      "id": "blue_green_rollback",
+      "use_when": "deployment_can_switch_environments",
+      "requirements": ["compatible_schema", "compatible_external_dependencies"]
+    },
+    {
+      "id": "canary_halt",
+      "use_when": "gradual_rollout_detects_early_risk",
+      "requirements": ["metrics", "thresholds", "halt_procedure"]
+    },
+    {
+      "id": "database_rollback",
+      "use_when": "schema_or_data_change_must_be_reversed",
+      "requirements": ["backward_compatible_migration", "restore_or_repair_plan"]
+    },
+    {
+      "id": "forward_fix",
+      "use_when": "revert_is_riskier_than_patch",
+      "requirements": ["clear_owner", "narrow_fix", "expedited_review"]
+    },
+    {
+      "id": "disable_integration",
+      "use_when": "external_dependency_misbehaves",
+      "requirements": ["circuit_breaker", "fallback_behavior", "alerting"]
+    }
+  ],
+  "production_assurance": {
+    "mandatory_when": [
+      "enterprise_mode",
+      "authentication_changed",
+      "authorization_changed",
+      "roles_permissions_or_tenancy_changed",
+      "customer_or_regulated_data_touched",
+      "secrets_tokens_credentials_keys_or_sessions_touched",
+      "billing_money_movement_quotas_or_entitlements_changed",
+      "infrastructure_deployment_cicd_networking_storage_or_logging_changed",
+      "external_integrations_or_webhooks_changed",
+      "file_upload_parsing_user_generated_content_rich_text_or_code_execution_changed",
+      "public_api_admin_api_background_job_queue_or_scheduled_task_changed"
+    ],
+    "threat_model_required_sections": [
+      "assets",
+      "actors",
+      "trust_boundaries",
+      "entry_points",
+      "abuse_cases",
+      "controls",
+      "required_security_tests",
+      "residual_risks"
+    ],
+    "access_review_required_fields": [
+      "role_or_actor",
+      "resource_or_action",
+      "reason_access_is_needed",
+      "grant_mechanism",
+      "deny_cases",
+      "audit_log_behavior",
+      "break_glass_path",
+      "permission_model_owner",
+      "review_cadence"
+    ],
+    "security_testing_categories": [
+      {
+        "id": "secrets",
+        "checks": ["secret_scanning", "no_credentials_in_code_logs_errors_or_build_artifacts"]
+      },
+      {
+        "id": "dependencies",
+        "checks": ["dependency_vulnerability_scan", "license_or_policy_check_when_relevant"]
+      },
+      {
+        "id": "static_analysis",
+        "checks": ["sast_for_injection", "unsafe_deserialization", "path_traversal", "insecure_crypto"]
+      },
+      {
+        "id": "authn_authz",
+        "checks": ["positive_permission_tests", "negative_permission_tests", "role_isolation_tests", "tenant_isolation_tests"]
+      },
+      {
+        "id": "input_handling",
+        "checks": ["validation_tests", "fuzz_or_property_tests_for_parsers_and_public_inputs"]
+      },
+      {
+        "id": "data_exposure",
+        "checks": ["response_shape_tests", "logging_redaction_tests", "export_or_download_checks"]
+      },
+      {
+        "id": "session_token",
+        "checks": ["expiry", "revocation", "rotation", "replay", "csrf_when_applicable"]
+      },
+      {
+        "id": "infrastructure",
+        "checks": ["least_privilege_iam", "network_exposure", "storage_acls", "ci_secret_scope"]
+      },
+      {
+        "id": "integration",
+        "checks": ["webhook_signature_checks", "replay_protection", "timeout_retry_abuse"]
+      },
+      {
+        "id": "observability",
+        "checks": ["security_events_logged", "sensitive_data_not_logged"]
+      }
+    ],
+    "adversarial_review_questions": [
+      "how_would_this_be_abused",
+      "what_happens_if_the_caller_lies",
+      "what_happens_if_client_side_identity_role_price_quota_or_ownership_fields_are_changed",
+      "what_happens_if_the_same_request_is_replayed",
+      "what_happens_if_a_webhook_is_forged",
+      "what_happens_if_a_dependency_returns_hostile_content",
+      "what_happens_if_logs_are_read_by_someone_who_should_not_see_secrets",
+      "what_happens_if_an_agent_exposed_a_key_in_test_fixture_screenshot_or_pr_body",
+      "what_happens_at_10x_traffic",
+      "what_is_the_safest_way_to_disable_this_feature"
+    ],
+    "enterprise_release_gate": [
+      "threat_model_complete",
+      "access_review_complete",
+      "required_security_tests_pass",
+      "secret_scan_passes",
+      "dependency_and_static_analysis_findings_resolved_or_accepted",
+      "attack_surface_changes_documented",
+      "audit_logging_verified",
+      "rollback_or_disable_path_tested",
+      "incident_owner_and_escalation_path_known"
+    ]
+  },
+  "throwaway_process": {
+    "discard_when": [
+      "violates_task_scope_or_architecture",
+      "diff_harder_to_review_than_fresh_implementation",
+      "agent_repeatedly_fixes_symptoms_without_root_cause",
+      "tests_require_excessive_unrelated_rewrites",
+      "required_adr_missing",
+      "integration_risk_higher_than_expected",
+      "rollback_not_safe"
+    ],
+    "discard_paths": [
+      "checkpoint_restore",
+      "worktree_abandon",
+      "pr_close_with_failure_summary",
+      "plan_revision",
+      "spike_extraction"
+    ],
+    "required_record_fields": [
+      "attempt",
+      "branch",
+      "agent_or_model",
+      "base_commit",
+      "what_worked",
+      "what_did_not_work",
+      "why_discarded",
+      "reusable_learning",
+      "next_action"
+    ]
+  },
+  "forked_exploration_policy": {
+    "purpose": "Detect dead ends early by testing multiple plausible approaches in bounded parallel spikes before production implementation.",
+    "use_when": [
+      "multiple_plausible_architectures",
+      "tool_library_framework_cloud_or_integration_may_be_limiting",
+      "unknown_performance_security_migration_or_compatibility_behavior",
+      "first_agent_attempt_requires_repeated_workarounds",
+      "implementation_plan_depends_on_testable_assumptions",
+      "wrong_choice_would_create_meaningful_rework"
+    ],
+    "do_not_use_when": [
+      "solution_obvious_and_low_risk",
+      "decision_already_made_by_adr_or_technology_strategy",
+      "alternatives_cannot_be_tested_cheaply",
+      "exploration_is_avoiding_product_decision"
+    ],
+    "exploration_packet_required_fields": [
+      "decision_to_make",
+      "options",
+      "hypotheses",
+      "timebox",
+      "allowed_work",
+      "comparison_rubric",
+      "kill_criteria",
+      "evidence_required"
+    ],
+    "comparison_rubric": [
+      "correctness",
+      "security",
+      "performance",
+      "operational_complexity",
+      "integration_fit",
+      "technology_strategy_fit",
+      "token_or_cost",
+      "maintainability",
+      "rollback"
+    ],
+    "parallel_fork_rules": [
+      "one_branch_or_worktree_per_option",
+      "same_timebox_and_rubric_for_each_option",
+      "label_branches_as_spikes",
+      "do_not_merge_spike_branches_as_production_code",
+      "avoid_polishing",
+      "end_with_decision_record_not_production_pr",
+      "stop_and_reframe_if_no_option_satisfies_rubric"
+    ],
+    "early_dead_end_signals": [
+      "agent_edits_outside_expected_boundaries",
+      "implementation_needs_repeated_exceptions_to_project_rules",
+      "tests_harder_to_write_than_implementation",
+      "tool_requires_unsupported_behavior_or_hidden_global_state",
+      "security_controls_awkward_or_inconsistent",
+      "performance_depends_on_unproven_assumptions",
+      "broad_rewrites_needed_for_narrow_outcome",
+      "error_handling_or_observability_unclear",
+      "approach_conflicts_with_technology_strategy_or_contracts",
+      "agent_patches_symptoms_without_stable_explanation"
+    ],
+    "decision_record_required_fields": [
+      "options_tested",
+      "branch_or_worktree",
+      "agent_or_model",
+      "time_spent",
+      "evidence",
+      "comparison",
+      "decision",
+      "production_follow_up"
+    ],
+    "gate": ["selected_path_has_evidence", "rejected_paths_have_reasons", "production_work_not_started_until_decision_recorded"]
+  },
+  "ralph_loop": {
+    "name": "Ralph Loop",
+    "sequence": ["record", "analyze", "learn", "prune", "harden"],
+    "record": ["attempt", "exploration_decision", "what_worked", "what_did_not_work", "evidence", "future_change"],
+    "analyze": ["repeated_agent_mistakes", "missing_tests", "confusing_boundaries", "weak_pr_packets", "brittle_integrations", "dead_end_patterns", "documentation_gaps"],
+    "learn_destinations": ["AGENTS.md", "scoped_rule_or_skill", "adr_update", "architecture_map_update", "test_strategy_update", "runbook_update", "task_graph_update", "technology_strategy_update", "exploration_decision_archive"],
+    "prune": ["outdated_agent_rules", "superseded_adrs_without_links", "old_workarounds", "failed_approaches_that_no_longer_apply", "long_low_signal_instructions"],
+    "harden": ["ci_checks", "hooks", "codeowners", "lints", "test_fixtures", "pr_template_requirements", "boundary_checks", "dashboards", "alerts"],
+    "memory_rule": {
+      "failed_once": "record_it",
+      "failed_twice": "add_rule_or_test",
+      "failed_three_times": "automate_prevention"
+    }
+  },
+  "lifecycle": [
+    {
+      "id": "phase_00_agent_context_intake",
+      "name": "Agent Context Intake",
+      "purpose": "Turn the human's initial request into enough shared context to choose the right process path.",
+      "inputs": ["human_request", "repository_docs_links_or_existing_product_context", "human_collaboration_preference"],
+      "outputs": ["ready_to_proceed_packet", "work_type_classification", "scale_mode", "recommended_artifact_set", "blocking_decisions", "assumptions"],
+      "required_sections": ["human_interaction_level", "objective", "current_understanding", "classification", "recommended_artifact_set", "key_assumptions", "human_decisions_needed", "risks", "recommended_next_step"],
+      "agent_requirements": ["read_agent_context_intake_playbook", "assess_human_interaction_level", "infer_routine_technical_context_from_repo", "ask_focused_question_rounds", "recommend_defaults_when_safe", "surface_human_only_decisions", "avoid_unnecessary_artifacts"],
+      "gate": {
+        "id": "C0",
+        "name": "Context Ready",
+        "criteria": ["human_interaction_level_known_or_defaulted", "objective_clear", "work_type_classified", "scale_mode_selected", "artifact_set_recommended", "blocking_decisions_identified", "assumptions_explicit", "next_step_recommended"]
+      }
+    },
+    {
+      "id": "phase_01_vision_strategy_methods",
+      "name": "Vision, Strategy, and Methods",
+      "purpose": "Define strategic direction, operating methods, success measures, and decision boundaries for large initiatives before product planning begins.",
+      "inputs": ["company_or_org_vision", "market_or_customer_context", "business_strategy", "organizational_constraints", "budget_and_timeline", "known_risks"],
+      "outputs": ["vision_strategy_methods", "strategic_measures", "non_negotiables", "anti_goals", "decision_boundaries"],
+      "required_sections": ["vision", "strategic_context", "strategies", "methods", "measures", "obstacles_and_risks", "non_negotiables", "anti_goals", "decision_boundaries", "review_cadence"],
+      "gate": {
+        "id": "C1",
+        "name": "Strategy Ready",
+        "criteria": ["vision_specific", "strategies_actionable", "methods_executable", "measures_defined", "anti_goals_defined", "decision_boundaries_defined"]
+      }
+    },
+    {
+      "id": "phase_02_direction",
+      "name": "Direction",
+      "purpose": "Decide whether the work should exist.",
+      "inputs": ["company_goal", "user_problem", "metric", "constraints"],
+      "outputs": ["goal_statement", "initiative_proposal", "owner", "work_type_classification"],
+      "gate": {
+        "id": "C2",
+        "name": "Direction Ready",
+        "criteria": ["goal_defined", "metric_defined", "owner_defined", "work_type_classified"]
+      }
+    },
+    {
+      "id": "phase_03_prd",
+      "name": "PRD",
+      "purpose": "Define why and what.",
+      "inputs": ["goal_statement", "initiative_proposal", "vision_strategy_methods_when_required"],
+      "outputs": ["prd"],
+      "required_sections": ["strategic_linkage_when_required", "summary", "goals", "non_goals", "users_and_use_cases", "requirements", "acceptance_criteria", "metrics", "constraints", "open_questions"],
+      "gate": {
+        "id": "C3",
+        "name": "PRD Ready",
+        "criteria": ["strategic_linkage_present_when_required", "goals_clear", "non_goals_clear", "acceptance_criteria_testable", "metrics_defined"]
+      }
+    },
+    {
+      "id": "phase_04_release_target_roadmap",
+      "name": "Release Target and Roadmap",
+      "purpose": "Define the next shippable increment and what will be deferred.",
+      "inputs": ["prd", "constraints", "team_capacity", "risk_tolerance", "market_or_customer_timing"],
+      "outputs": ["release_target", "roadmap", "deferral_contract"],
+      "required_sections": ["release_objective", "in_scope", "deferred", "explicitly_out_of_scope", "release_risks", "assumptions", "dependencies", "kill_criteria", "success_criteria", "release_budget", "negotiation_notes"],
+      "agent_requirements": ["surface_release_slicing_options", "identify_deferrable_work", "identify_not_planned_work", "challenge_overbroad_scope_with_evidence"],
+      "human_requirements": ["choose_or_edit_release_target", "approve_deferral_contract"],
+      "gate": {
+        "id": "C4",
+        "name": "Release Scope Ready",
+        "criteria": ["in_scope_clear", "deferred_clear", "out_of_scope_clear", "assumptions_testable", "dependencies_owned", "kill_criteria_defined", "release_budget_defined", "revisit_triggers_defined"]
+      }
+    },
+    {
+      "id": "phase_05_technology_strategy",
+      "name": "Technology Strategy and Platform Constraints",
+      "purpose": "Define the approved technology posture before agents make costly or uncomfortable implementation choices.",
+      "inputs": ["prd", "release_target", "roadmap", "existing_contracts", "current_stack", "team_skills", "security_and_compliance_constraints", "cost_goals"],
+      "outputs": ["technology_strategy", "approved_stack_updates", "technology_adr_candidates"],
+      "required_sections": ["decision_owner", "existing_constraints", "preferred_stack", "forbidden_or_approval_required_choices", "options_considered", "selected_baseline", "observability_and_operations_baseline", "agent_rules"],
+      "agent_requirements": ["surface_options_and_tradeoffs", "identify_contract_fit", "identify_cost_reduction_options", "identify_operational_burden", "identify_approval_required_choices"],
+      "human_requirements": ["approve_selected_baseline", "approve_or_reject_new_tooling", "approve_vendor_or_contract_impact"],
+      "gate": {
+        "id": "C5",
+        "name": "Technology Strategy Ready",
+        "criteria": ["baseline_stack_approved", "cloud_and_vendor_posture_approved", "observability_logging_monitoring_defined", "issue_tracking_defined", "cost_and_contract_impact_understood", "agent_rules_defined"]
+      }
+    },
+    {
+      "id": "phase_06_execution_brief",
+      "name": "Execution Brief",
+      "purpose": "Translate product intent and release scope into first-pass implementation strategy.",
+      "inputs": ["prd", "release_target", "roadmap", "technology_strategy", "deferral_contract"],
+      "outputs": ["execution_brief"],
+      "required_sections": ["source", "release_scope", "architecture_options", "technology_alignment", "proposed_system_shape", "major_workstreams", "technical_risks", "cost_and_budget_analysis", "non_functional_budgets", "required_decisions", "verification_strategy", "rollout_strategy", "deferral_plan", "human_review_strategy"],
+      "architecture_option_fields": ["summary", "security", "execution_time", "token_or_cost", "operational_complexity", "vendor_or_contract_fit", "rollback", "recommendation"],
+      "gate": {
+        "id": "C6",
+        "name": "Execution Ready",
+        "criteria": ["release_scope_reflected", "technology_strategy_reflected", "architecture_options_compared", "security_tradeoffs_explained", "execution_time_estimated", "token_or_cost_estimated", "vendor_or_contract_impact_explained", "major_blocks_identified", "risks_identified", "rollout_strategy_defined", "verification_strategy_defined", "deferral_plan_defined"]
+      }
+    },
+    {
+      "id": "phase_07_architecture_map",
+      "name": "Architecture Map",
+      "purpose": "Explain system boundaries, components, flows, interfaces, and operational model.",
+      "inputs": ["prd", "technology_strategy", "execution_brief", "repo_recon"],
+      "outputs": ["architecture_map"],
+      "required_sections": ["overview", "boundaries", "components", "data_model", "flows", "interfaces", "operational_model", "known_tradeoffs"],
+      "gate": {
+        "id": "C7",
+        "name": "Architecture Ready",
+        "criteria": ["boundaries_clear", "components_clear", "flows_clear", "interfaces_clear", "operational_model_clear"]
+      }
+    },
+    {
+      "id": "phase_08_adrs",
+      "name": "ADRs",
+      "purpose": "Record consequential decisions and tradeoffs.",
+      "inputs": ["execution_brief", "architecture_map"],
+      "outputs": ["adr_list"],
+      "adr_required_when": ["hard_to_reverse", "security_sensitive", "performance_sensitive", "cost_sensitive", "cross_team", "vendor_lock_in", "data_model_change", "likely_to_be_revisited"],
+      "required_sections": ["status", "context", "decision", "alternatives_considered", "consequences", "validation", "links"],
+      "gate": {
+        "id": "C8",
+        "name": "Decisions Ready",
+        "criteria": ["required_adrs_accepted_or_deferred", "deferred_decisions_have_owner_and_date"]
+      }
+    },
+    {
+      "id": "phase_09_forked_exploration",
+      "name": "Forked Exploration",
+      "purpose": "Run bounded parallel spikes for high-uncertainty decisions before production implementation.",
+      "inputs": ["execution_brief", "architecture_map", "technology_strategy", "adr_candidates", "high_uncertainty_questions"],
+      "outputs": ["exploration_packets", "spike_branches_or_worktrees", "exploration_decisions", "updated_adrs_or_task_graph"],
+      "required_when": ["high_uncertainty_decision", "tool_or_architecture_risk", "meaningful_rework_risk"],
+      "required_sections": ["decision_to_make", "options", "hypotheses", "timebox", "allowed_work", "comparison_rubric", "kill_criteria", "evidence_required"],
+      "gate": {
+        "id": "C9",
+        "name": "Exploration Ready",
+        "criteria": ["forked_exploration_completed_or_explicitly_skipped", "selected_path_has_evidence", "rejected_paths_have_reasons", "production_follow_up_defined"]
+      }
+    },
+    {
+      "id": "phase_10_task_graph",
+      "name": "Task Graph",
+      "purpose": "Break work into dependency-aware execution units.",
+      "inputs": ["prd", "release_target", "roadmap", "technology_strategy", "execution_brief", "architecture_map", "adr_list", "exploration_decisions"],
+      "outputs": ["task_graph"],
+      "task_required_fields": ["id", "title", "goal", "work_type", "dependencies", "scope", "non_scope", "affected_areas", "definition_of_done", "verification_commands", "stop_conditions", "reviewer_focus"],
+      "gate": {
+        "id": "C10",
+        "name": "Task Graph Ready",
+        "criteria": ["tasks_dependency_ordered", "blocked_tasks_marked", "work_type_gates_attached", "tasks_sized_for_review", "each_task_has_dod", "each_task_has_verification", "each_task_has_stop_conditions"]
+      }
+    },
+    {
+      "id": "phase_11_pr_task_packet",
+      "name": "PR Task Packet",
+      "purpose": "Make the PR the execution contract.",
+      "inputs": ["task", "prd", "release_target", "roadmap", "technology_strategy", "execution_brief", "architecture_map", "adr_list"],
+      "outputs": ["draft_pr"],
+      "required_sections": ["goal", "context", "release_scope", "work_type", "integration_strategy", "technology_constraints", "write_boundaries", "access_and_security", "scope", "out_of_scope", "definition_of_done", "verification_plan", "rollback_plan", "git_hygiene", "stop_conditions", "agent_implementation_notes", "reviewer_checklist"],
+      "gate": {
+        "id": "C11",
+        "name": "PR Packet Ready",
+        "criteria": ["scope_clear", "work_type_specific_evidence_present", "deferred_work_excluded", "non_scope_clear", "technology_constraints_clear", "new_technology_approval_linked_if_applicable", "write_boundaries_clear", "access_and_security_clear", "integration_strategy_clear", "verification_clear", "rollback_plan_clear", "stop_conditions_clear", "linked_context_present"]
+      }
+    },
+    {
+      "id": "phase_12_implementation",
+      "name": "Implementation",
+      "purpose": "Build the smallest reviewable change that satisfies the PR task packet.",
+      "inputs": ["draft_pr", "repo", "agent_instructions"],
+      "outputs": ["code_diff", "tests", "updated_pr_notes"],
+      "agent_rules": ["read_pr_packet_first", "confirm_repo_state", "prefer_existing_patterns", "keep_diff_scoped", "respect_write_boundaries", "do_not_mix_unrelated_refactors", "write_tests", "run_required_checks", "update_pr_evidence", "record_memory_updates", "stop_on_stop_conditions", "stop_and_propose_forked_exploration_when_dead_end_signals_appear"],
+      "gate": {
+        "id": "C12",
+        "name": "Code Ready",
+        "criteria": ["implementation_complete", "checks_run", "pr_evidence_updated", "no_known_unreported_failures"]
+      }
+    },
+    {
+      "id": "phase_13_verification",
+      "name": "Verification",
+      "purpose": "Prove the change works and is safe to review.",
+      "inputs": ["code_diff", "tests", "verification_plan"],
+      "outputs": ["verification_evidence"],
+      "layers": ["format", "lint", "typecheck", "unit", "integration", "e2e", "security", "performance", "migration", "observability", "ui"],
+      "gate": {
+        "id": "C13",
+        "name": "Review Ready",
+        "criteria": ["required_checks_pass_or_explained", "integration_evidence_attached", "e2e_decision_recorded", "security_checks_pass_or_accepted", "secret_scan_status_recorded", "evidence_attached", "risk_notes_present"]
+      }
+    },
+    {
+      "id": "phase_14_review",
+      "name": "Review",
+      "purpose": "Evaluate the change against intent, architecture, scope, and risk.",
+      "inputs": ["draft_pr", "code_diff", "verification_evidence", "linked_docs"],
+      "outputs": ["approval_or_change_request"],
+      "review_order": ["check_scope", "read_pr_packet", "read_linked_decisions", "inspect_tests", "inspect_implementation", "inspect_debuggability", "check_verification_evidence", "check_security_and_access_evidence"],
+      "gate": {
+        "id": "C14",
+        "name": "Release Ready",
+        "criteria": ["approved", "ci_green", "write_boundaries_respected", "technology_constraints_respected", "integration_strategy_valid", "security_or_adversarial_gate_complete_when_required", "rollout_confirmed", "rollback_defined", "observability_ready"]
+      }
+    },
+    {
+      "id": "phase_15_merge_release",
+      "name": "Merge and Release",
+      "purpose": "Ship safely.",
+      "inputs": ["approved_pr", "release_plan"],
+      "outputs": ["merged_change", "release_record"],
+      "gate": {
+        "id": "C15",
+        "name": "Released",
+        "criteria": ["merged", "deployed_or_queued", "monitoring_started"]
+      }
+    },
+    {
+      "id": "phase_16_operate",
+      "name": "Operate",
+      "purpose": "Learn whether the shipped change works in reality.",
+      "inputs": ["release_record", "metrics", "logs", "support_feedback"],
+      "outputs": ["health_assessment", "follow_up_tasks"],
+      "gate": {
+        "id": "C16",
+        "name": "Operationally Assessed",
+        "criteria": ["metrics_checked", "errors_checked", "user_or_support_signal_checked"]
+      }
+    },
+    {
+      "id": "phase_17_reconcile",
+      "name": "Reconcile",
+      "purpose": "Keep plans, code, docs, and reality aligned.",
+      "inputs": ["merged_change", "task_graph", "architecture_map", "adr_list", "runbooks", "discard_records", "memory_records"],
+      "outputs": ["updated_task_graph", "updated_docs", "retired_or_refreshed_tasks", "updated_memory", "new_automation_candidates"],
+      "required_sections": ["what_shipped", "plan_drift", "completed_tasks", "blocked_or_drifted_tasks", "docs_updated", "memory_updated", "automation_candidates", "future_agent_entrypoint"],
+      "agent_requirements": ["update_task_graph", "link_evidence", "supersede_changed_adrs", "update_architecture_map_when_boundaries_changed", "update_runbooks_when_operations_changed", "update_index_and_log_files", "record_memory_lessons"],
+      "gate": {
+        "id": "C17",
+        "name": "Reconciled",
+        "criteria": ["completed_tasks_marked", "drifted_tasks_updated", "blocked_tasks_replanned", "discarded_attempts_recorded", "ralph_loop_applied", "docs_current"]
+      }
+    }
+  ],
+  "mini_pr_task_packet_schema": {
+    "required": ["goal", "scope", "files_or_areas", "definition_of_done", "verification", "stop_conditions"],
+    "properties": {
+      "goal": { "type": "string" },
+      "scope": {
+        "type": "object",
+        "properties": {
+          "in_scope": { "type": "array", "items": { "type": "string" } },
+          "out_of_scope": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "files_or_areas": {
+        "type": "object",
+        "properties": {
+          "expected_write_areas": { "type": "array", "items": { "type": "string" } },
+          "sensitive_areas_to_avoid": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "definition_of_done": { "type": "array", "items": { "type": "string" } },
+      "verification": {
+        "type": "object",
+        "properties": {
+          "commands": { "type": "array", "items": { "type": "string" } },
+          "expected_results": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "stop_conditions": { "type": "array", "items": { "type": "string" } }
+    }
+  },
+  "pr_task_packet_schema": {
+    "required": ["goal", "context", "release_scope", "work_type", "integration_strategy", "technology_constraints", "write_boundaries", "access_and_security", "scope", "out_of_scope", "definition_of_done", "verification_plan", "rollback_plan", "git_hygiene", "stop_conditions", "agent_implementation_notes", "reviewer_checklist"],
+    "properties": {
+      "goal": { "type": "string" },
+      "context": {
+        "type": "object",
+        "required": ["prd", "release_target", "technology_strategy", "execution_brief", "architecture_map", "parent_task"],
+        "properties": {
+          "vision_strategy_methods": { "type": "string" },
+          "prd": { "type": "string" },
+          "release_target": { "type": "string" },
+          "roadmap": { "type": "string" },
+          "technology_strategy": { "type": "string" },
+          "execution_brief": { "type": "string" },
+          "architecture_map": { "type": "string" },
+          "adrs": { "type": "array", "items": { "type": "string" } },
+          "parent_task": { "type": "string" }
+        }
+      },
+      "release_scope": {
+        "type": "object",
+        "properties": {
+          "in_scope_for_release": { "type": "array", "items": { "type": "string" } },
+          "deferred_items_not_to_implement": { "type": "array", "items": { "type": "string" } },
+          "explicitly_out_of_scope": { "type": "array", "items": { "type": "string" } },
+          "revisit_triggers": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "work_type": {
+        "type": "object",
+        "properties": {
+          "types": { "type": "array", "items": { "type": "string" } },
+          "required_extra_evidence": { "type": "array", "items": { "type": "string" } },
+          "work_type_specific_gates": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "brownfield_context": {
+        "type": "object",
+        "properties": {
+          "current_behavior": { "type": "string" },
+          "existing_consumers": { "type": "array", "items": { "type": "string" } },
+          "regression_risks": { "type": "array", "items": { "type": "string" } },
+          "compatibility_requirements": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "ux_evidence": {
+        "type": "object",
+        "properties": {
+          "user_journey": { "type": "string" },
+          "design_source": { "type": "string" },
+          "interaction_states": { "type": "array", "items": { "type": "string" } },
+          "accessibility_requirements": { "type": "array", "items": { "type": "string" } },
+          "visual_qa_artifacts": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "dependency_gates": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "dependency": { "type": "string" },
+            "owner": { "type": "string" },
+            "needed_by": { "type": "string" },
+            "status": { "type": "string" },
+            "fallback": { "type": "string" },
+            "verification_when_delivered": { "type": "string" }
+          }
+        }
+      },
+      "integration_strategy": {
+        "type": "object",
+        "properties": {
+          "integration_type": { "type": "string" },
+          "upstream_dependencies": { "type": "array", "items": { "type": "string" } },
+          "downstream_consumers": { "type": "array", "items": { "type": "string" } },
+          "compatibility_requirements": { "type": "array", "items": { "type": "string" } },
+          "rollout_sequence": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "technology_constraints": {
+        "type": "object",
+        "properties": {
+          "approved_language_or_framework": { "type": "array", "items": { "type": "string" } },
+          "approved_tools_or_services": { "type": "array", "items": { "type": "string" } },
+          "approved_cloud_or_account": { "type": "string" },
+          "observability_or_logging_requirements": { "type": "array", "items": { "type": "string" } },
+          "issue_or_project_tracking_requirements": { "type": "array", "items": { "type": "string" } },
+          "new_technology_introduced": { "type": "boolean" },
+          "human_approval_link": { "type": "string" }
+        }
+      },
+      "write_boundaries": {
+        "type": "object",
+        "properties": {
+          "allowed": { "type": "array", "items": { "type": "string" } },
+          "read_only": { "type": "array", "items": { "type": "string" } },
+          "forbidden": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "access_and_security": {
+        "type": "object",
+        "properties": {
+          "data_touched": { "type": "array", "items": { "type": "string" } },
+          "secrets_or_credentials_touched": { "type": "array", "items": { "type": "string" } },
+          "new_or_changed_permissions": { "type": "array", "items": { "type": "string" } },
+          "roles_allowed": { "type": "array", "items": { "type": "string" } },
+          "roles_denied": { "type": "array", "items": { "type": "string" } },
+          "trust_boundaries_crossed": { "type": "array", "items": { "type": "string" } },
+          "new_attack_surface": { "type": "array", "items": { "type": "string" } },
+          "security_controls": { "type": "array", "items": { "type": "string" } },
+          "residual_risk_owner": { "type": "string" }
+        }
+      },
+      "scope": { "type": "array", "items": { "type": "string" } },
+      "out_of_scope": { "type": "array", "items": { "type": "string" } },
+      "definition_of_done": { "type": "array", "items": { "type": "string" } },
+      "verification_plan": {
+        "type": "object",
+        "properties": {
+          "commands": { "type": "array", "items": { "type": "string" } },
+          "expected_results": { "type": "array", "items": { "type": "string" } },
+          "integration_checks": { "type": "array", "items": { "type": "string" } },
+          "e2e_checks": { "type": "array", "items": { "type": "string" } },
+          "security_checks": { "type": "array", "items": { "type": "string" } },
+          "manual_checks": { "type": "array", "items": { "type": "string" } },
+          "artifacts": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "rollback_plan": {
+        "type": "object",
+        "properties": {
+          "rollback_type": { "type": "string" },
+          "data_rollback_required": { "type": "boolean" },
+          "disable_flag_or_config": { "type": "string" },
+          "safe_revert_command_or_pr": { "type": "string" },
+          "rollback_trigger_signal": { "type": "string" }
+        }
+      },
+      "git_hygiene": {
+        "type": "object",
+        "properties": {
+          "branch": { "type": "string" },
+          "commit_strategy": { "type": "string" },
+          "expected_pr_size": { "type": "string" },
+          "stacked_pr_dependencies": { "type": "array", "items": { "type": "string" } },
+          "rebase_or_merge_policy": { "type": "string" }
+        }
+      },
+      "stop_conditions": { "type": "array", "items": { "type": "string" } },
+      "agent_implementation_notes": {
+        "type": "object",
+        "properties": {
+          "plan": { "type": "string" },
+          "changes_made": { "type": "array", "items": { "type": "string" } },
+          "verification_evidence": { "type": "array", "items": { "type": "string" } },
+          "integration_evidence": { "type": "array", "items": { "type": "string" } },
+          "risks_or_followups": { "type": "array", "items": { "type": "string" } },
+          "memory_updates": {
+            "type": "object",
+            "properties": {
+              "what_worked": { "type": "array", "items": { "type": "string" } },
+              "what_did_not_work": { "type": "array", "items": { "type": "string" } },
+              "future_agent_notes": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        }
+      },
+      "reviewer_checklist": { "type": "array", "items": { "type": "string" } }
+    }
+  },
+  "anti_patterns": [
+    "one_giant_build_prompt",
+    "prd_without_acceptance_criteria",
+    "adr_for_trivial_choice",
+    "task_without_dependency_or_verification",
+    "pr_without_non_scope",
+    "agent_reviews_own_high_risk_work",
+    "verification_claimed_but_not_run",
+    "stale_architecture_docs",
+    "feature_and_refactor_mixed_without_need",
+    "subagent_writes_without_boundary",
+    "parallel_agents_share_branch",
+    "rollback_plan_added_after_release",
+    "failed_attempt_discarded_without_learning_record"
+  ],
+  "artifact_format_policy": {
+    "durable_knowledge": "Markdown with YAML frontmatter for PRDs, briefs, architecture maps, ADRs, runbooks, memory, process exceptions, indexes, and logs.",
+    "machine_contracts": "JSON for Ready-To-Proceed Packets, Mini PR Task Packets, PR Task Packets, and Task Graphs.",
+    "strictness": "Validate JSON contracts strictly. Consume Markdown knowledge permissively while preserving unknown frontmatter keys.",
+    "index_files": "Use index.md for progressive disclosure.",
+    "log_files": "Use log.md for chronological history."
+  },
+  "task_system_adapters": {
+    "canonical_default": "task_graph",
+    "supported_task_systems": ["linear", "github", "jira", "markdown", "none"],
+    "config_file": "process.config.json",
+    "config_schema": "schema/process-config.schema.json",
+    "rules": [
+      "ask_for_task_system_during_intake",
+      "external_trackers_are_adapters_unless_human_explicitly_chooses_external_tracker_as_source_of_truth",
+      "mirror_one_reviewable_task_graph_task_to_one_external_issue_when_tracker_is_enabled",
+      "preserve_links_between_task_graph_external_issue_pr_task_packet_and_pr"
+    ],
+    "linear_mapping": {
+      "issue": "one_reviewable_task_graph_task",
+      "labels_project_cycle_assignee": "execution_metadata",
+      "must_not_replace": ["scope", "non_scope", "verification", "stop_conditions", "budget"]
+    }
+  },
+  "orchestrator_executor_policy": {
+    "optional": true,
+    "orchestrator_owns": ["intake", "classification", "artifact_selection", "ready_to_proceed_packets", "task_graphs", "pr_task_packets", "human_decisions", "executor_handoff"],
+    "executor_receives": ["one_pr_task_packet_or_one_task_graph_task"],
+    "executor_must_stop_when": ["scope_unclear", "write_boundaries_unclear", "verification_unclear", "stop_conditions_unclear", "new_high_level_decision_needed"]
+  },
+  "checkpoint_policy": {
+    "trigger": ["human_says_checkpoint", "context_window_at_risk", "token_budget_at_risk", "work_paused_with_open_decisions", "new_session_must_continue"],
+    "path": "docs/intake/checkpoint-<date>.md",
+    "required_sections": ["current_state", "open_decisions", "assumptions", "partial_artifacts", "next_action", "files_next_session_must_read_first"]
+  },
+  "human_response_defaults": {
+    "proceed_when": ["reversible_low_risk_technical_assumption"],
+    "pause_when": ["product_behavior", "budget", "security", "privacy", "data", "architecture", "vendor", "deadline", "rollout", "irreversible_change"],
+    "required_record": ["decision_needed", "recommended_default", "risk_of_waiting", "risk_of_proceeding", "owner_or_next_check_in"]
+  },
+  "brownfield_discovery": {
+    "required_outputs": ["known_consumers", "inferred_consumers", "covering_tests", "missing_tests", "rollback_path", "out_of_scope_files"],
+    "starter_commands": ["git status --short", "git ls-files", "rg -n \"symbol_or_route_or_table_name\"", "rg -n \"import .*module_name|from .*module_name\"", "find . -maxdepth 3 -iname '*test*' -o -iname '*spec*'"]
+  },
+  "source_influences": [
+    {
+      "name": "BMAD Method",
+      "url": "https://github.com/bmad-code-org/BMAD-METHOD"
+    },
+    {
+      "name": "Cline Plan and Act",
+      "url": "https://docs.cline.bot/core-workflows/plan-and-act"
+    },
+    {
+      "name": "Cline Checkpoints",
+      "url": "https://docs.cline.bot/core-workflows/checkpoints"
+    },
+    {
+      "name": "Cline Rules",
+      "url": "https://docs.cline.bot/customization/cline-rules"
+    },
+    {
+      "name": "shadcn/improve",
+      "url": "https://github.com/shadcn/improve"
+    },
+    {
+      "name": "Taskmaster and Hamster Delivery",
+      "url": "https://tryhamster.com/docs/concepts/delivery"
+    },
+    {
+      "name": "Claude Code Best Practices",
+      "url": "https://code.claude.com/docs/en/best-practices"
+    }
+  ]
+}

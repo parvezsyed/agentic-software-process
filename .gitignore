@@ -1,0 +1,14 @@
+.DS_Store
+node_modules/
+coverage/
+dist/
+build/
+.cache/
+tmp/
+.tmp/
+.env
+.env.*
+*.log
+*.lcov
+junit.xml
+reports/
