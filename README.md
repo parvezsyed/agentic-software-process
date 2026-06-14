@@ -11,7 +11,7 @@ Give an agent this repository and a goal.
 Use this when you want the agent to own intake, classify the work, create the right packets, split tasks, and hand off bounded implementation only after the process is ready.
 
 ```text
-Use /Users/pms88/projects/agentic-software-process as the process.
+Use https://github.com/parvezsyed/agentic-software-process as the process.
 
 You are acting as the Orchestrator. Read AGENT-ENTRYPOINT.md first, follow the process, and start intake for this goal:
 
@@ -25,7 +25,7 @@ Do not implement until the required intake packet and task packet/task graph exi
 Use this for lightweight/general sessions, or when the agent should infer its role from the repository and conversation.
 
 ```text
-Use /Users/pms88/projects/agentic-software-process as the process for this project.
+Use https://github.com/parvezsyed/agentic-software-process as the process.
 
 Read AGENT-ENTRYPOINT.md first, follow the process, and start intake for this goal:
 
